@@ -14,6 +14,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     @IBOutlet weak var soundTableView: UITableView!
     
     var sounds : [Sound] = []
+    var audioPlayer : AVAudioPlayer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,6 +42,23 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         cell.textLabel?.text = sound.name
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let sound = sounds[indexPath.row]
+        
+        do {
+            try audioPlayer = AVAudioPlayer(data: sound.audio! as Data)
+            audioPlayer?.play()
+        } catch{}
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
 
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        let sound = sounds[indexPath.row]
+        (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext.delete(sound)
+        (UIApplication.shared.delegate as! AppDelegate).saveContext()
+        soundTableView.reloadData()
+        
+    }
 }
 
